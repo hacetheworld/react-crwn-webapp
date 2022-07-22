@@ -5,7 +5,8 @@ import HomePage from "./pages/homepage/homepage.component"
 import Shop from './pages/shop/shop.page';
 import Header from './components/header/header';
 import SignInSignUpPage from './pages/sign-in-and-sign-up/sign-in-and-sign-up';
-import { auth } from './firebase/firbase.util';
+import {  auth, createUserProfileDocument } from './firebase/firbase.util';
+import { onSnapshot } from 'firebase/firestore';
 
 class App extends Component {
   constructor(props) {
@@ -16,9 +17,22 @@ class App extends Component {
   }
   unsubscribeFromAuth=null
   componentDidMount(){
-    this.unsubscribeFromAuth= auth.onAuthStateChanged(user=>{
-      console.log(user);
-      this.setState({currentUser:user})
+
+    this.unsubscribeFromAuth= auth.onAuthStateChanged(async userAuth=>{
+      // console.log(user);
+      if (userAuth){
+      const userRef= await createUserProfileDocument(userAuth)
+      onSnapshot(userRef,snapShot=>{
+        this.setState({
+          currentUser:{
+            id:snapShot.id,
+            ...snapShot.data()
+          }
+        })
+      })
+      }else{
+        this.setState({currentUser:userAuth})
+      }
     })
   }
   componentWillUnmount(){
@@ -26,6 +40,7 @@ class App extends Component {
   }
   render() {
     const {currentUser}=this.state
+
     return (
       <div >
         <Header currentUser={currentUser} />
