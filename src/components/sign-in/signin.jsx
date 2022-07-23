@@ -1,5 +1,6 @@
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import React,{Component} from 'react';
-import { signInWithGoogle } from '../../firebase/firbase.util';
+import { auth, signInWithGoogle } from '../../firebase/firbase.util';
 import CustomButton from '../custom-button/custom-button';
 import FormInput from '../form-input/form-input';
 
@@ -13,17 +14,28 @@ class SignIn extends Component {
 
          }
     }
-    handleSubmit=(e)=>{
-        this.setState({email:"",password:""})
+    handleSubmit= async (e)=>{
         e.preventDefault()
+        const {email,password}=this.state
+        try {
+            await signInWithEmailAndPassword(auth,email,password)
+            this.setState({email:"",password:""})
+
+
+        } catch (error) {
+            console.log("error",error);
+        }
+
+
 
     }
     handleChange=(e)=>{
         // console.log(e.target.value,"sdfsf")
         const {name,value}=e.target
-        console.log(name,value,"Asdsdsf")
+        // console.log(name,value,"Asdsdsf")
         this.setState({[name]:value})
     }
+
     render() {
         return (
             <div className="sign-in">
